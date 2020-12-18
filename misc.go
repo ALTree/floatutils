@@ -39,23 +39,22 @@ func agm(a, b *big.Float) *big.Float {
 
 var piCache *big.Float
 var piCachePrec uint
-var enablePiCache bool = true
+var enablePiCache = true
 
 func init() {
-	if !enablePiCache {
-		return
+	if enablePiCache {
+
+		piCache, _, _ = new(big.Float).SetPrec(1024).Parse("3."+
+			"14159265358979323846264338327950288419716939937510"+
+			"58209749445923078164062862089986280348253421170679"+
+			"82148086513282306647093844609550582231725359408128"+
+			"48111745028410270193852110555964462294895493038196"+
+			"44288109756659334461284756482337867831652712019091"+
+			"45648566923460348610454326648213393607260249141273"+
+			"72458700660631558817488152092096282925409171536444", 10)
+
+		piCachePrec = 1024
 	}
-
-	piCache, _, _ = new(big.Float).SetPrec(1024).Parse("3."+
-		"14159265358979323846264338327950288419716939937510"+
-		"58209749445923078164062862089986280348253421170679"+
-		"82148086513282306647093844609550582231725359408128"+
-		"48111745028410270193852110555964462294895493038196"+
-		"44288109756659334461284756482337867831652712019091"+
-		"45648566923460348610454326648213393607260249141273"+
-		"72458700660631558817488152092096282925409171536444", 10)
-
-	piCachePrec = 1024
 }
 
 // pi returns pi to prec bits of precision
@@ -125,4 +124,14 @@ func newton(fOverDf func(z *big.Float) *big.Float, guess *big.Float, dPrec uint)
 	}
 
 	return guess.SetPrec(dPrec)
+}
+
+// An ErrNaN panic is raised by a Float operation that would lead to
+// a NaN under IEEE-754 rules. An ErrNaN implements the error interface.
+type ErrNaN struct {
+	msg string
+}
+
+func (err ErrNaN) Error() string {
+	return err.msg
 }
